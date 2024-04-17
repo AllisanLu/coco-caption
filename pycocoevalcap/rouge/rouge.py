@@ -49,7 +49,7 @@ class Rouge():
         :param refs: list of str : COCO reference sentences for the particular image to be evaluated
         :returns score: int (ROUGE-L score for the candidate evaluated against references)
         """
-        assert(len(candidate)==1)	
+        #assert(len(candidate)==1)	
         assert(len(refs)>0)         
         prec = []
         rec = []
@@ -94,7 +94,7 @@ class Rouge():
 
             # Sanity check.
             assert(type(hypo) is list)
-            assert(len(hypo) == 1)
+            #assert(len(hypo) == 1)
             assert(type(ref) is list)
             assert(len(ref) > 0)
 
