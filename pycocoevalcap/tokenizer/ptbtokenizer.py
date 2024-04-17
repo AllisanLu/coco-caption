@@ -36,24 +36,30 @@ class PTBTokenizer:
         image_id = [k for k, v in captions_for_image.items() for _ in range(len(v))]
         sentences = '\n'.join([c['caption'].replace('\n', ' ') for k, v in captions_for_image.items() for c in v])
 
+        sen_bytes = str.encode(sentences)
         # ======================================================
         # save sentences to temporary file
         # ======================================================
         path_to_jar_dirname=os.path.dirname(os.path.abspath(__file__))
         tmp_file = tempfile.NamedTemporaryFile(delete=False, dir=path_to_jar_dirname)
-        tmp_file.write(sentences)
+        tmp_file.write(sen_bytes)
         tmp_file.close()
 
         # ======================================================
         # tokenize sentence
         # ======================================================
         cmd.append(os.path.basename(tmp_file.name))
+
+        # current_working_directory = os.getcwd()
+        # print(current_working_directory)
         p_tokenizer = subprocess.Popen(cmd, cwd=path_to_jar_dirname, \
-                stdout=subprocess.PIPE)
-        token_lines = p_tokenizer.communicate(input=sentences.rstrip())[0]
-        lines = token_lines.split('\n')
+                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = p_tokenizer.communicate(input=sentences.rstrip())
+        token_lines = output[0]
+        # is it supposed to be p_tokenizer.stdout()
+        lines = token_lines.split(str.encode('\n'))
         # remove temp file
-        os.remove(tmp_file.name)
+        #os.remove(tmp_file.name)
 
         # ======================================================
         # create dictionary for tokenized captions
@@ -61,7 +67,7 @@ class PTBTokenizer:
         for k, line in zip(image_id, lines):
             if not k in final_tokenized_captions_for_image:
                 final_tokenized_captions_for_image[k] = []
-            tokenized_caption = ' '.join([w for w in line.rstrip().split(' ') \
+            tokenized_caption = b' '.join([w for w in line.rstrip().split(str.encode(' ')) \
                     if w not in PUNCTUATIONS])
             final_tokenized_captions_for_image[k].append(tokenized_caption)
 
